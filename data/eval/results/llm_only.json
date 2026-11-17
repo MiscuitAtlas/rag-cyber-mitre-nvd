@@ -1,0 +1,436 @@
+{
+  "system": "llm_only",
+  "created_at": "2026-11-17T22:35:48+00:00",
+  "settings": {
+    "ollama_model": "mistral",
+    "embed_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "top_k": 5,
+    "hybrid_alpha": 0.6,
+    "temperature": 0.0,
+    "seed": 42,
+    "corpus": "100 documents, 406 chunks",
+    "index_created_at": "2026-11-17T22:14:30+00:00"
+  },
+  "results": [
+    {
+      "id": "q01",
+      "category": "mitre",
+      "question": "What is T1053 in MITRE ATT&CK?",
+      "expected_contains": [
+        "T1053",
+        "Scheduled Task/Job"
+      ],
+      "reference_ids": [
+        "T1053"
+      ],
+      "reference_doc_ids": [
+        "mitre:T1053"
+      ],
+      "reference_text": "T1053 Scheduled Task/Job | Overview\nMITRE ATT&CK technique T1053: Scheduled Task/Job. Type: Technique. Tactics: Execution, Persistence, Privilege Escalation. Platforms: Containers, ESXi, Linux, macOS, Network Devices, Windows. Detection strategies: DET0094 Cross-Platform Behavioral Detection of Scheduled Task/Job Abuse. Mitigations: M1018 User Account Management; M1022 Restrict File and Directory Permissions; M1026 Privileged Account Management; M1028 Operating System Configuration; M1047 Audit. Reference: https://attack.mitre.org/techniques/T1053\nT1053 Scheduled Task/Job | Description\nAdversaries may abuse task scheduling functionality to facilitate initial or recurring execution of malicious code. Utilities exist within all major operating systems to schedule programs or scripts to be executed at a specified date and time. A task can also be scheduled on a remote system, provided the proper authentication is met (ex: RPC and file and printer sharing in Windows environments). Scheduling a task on a remote system typically may require being a member of an admin or otherwise privileged group on the remote system.\nT1053 Scheduled Task/Job | Description\nAdversaries may use task scheduling to execute programs at system startup or on a scheduled basis for persistence. These mechanisms can also be abused to run a process under the context of a specified account (such as one with elevated permissions/privileges). Similar to System Binary Proxy Execution (T1218), adversaries have also abused task scheduling to potentially mask one-time execution under a trusted system process.\nT1053 Scheduled Task/Job | Detection\nDetection strategy DET0094: Cross-Platform Behavioral Detection of Scheduled Task/Job Abuse. Analytic AN0258 (Windows): Detects creation or modification of scheduled tasks using schtasks.exe, at.exe, or COM objects followed by execution of outlier processes tied to the scheduled job. Log sources: WinEventLog:Security (EventCode=4698) [Scheduled Job Creation]; WinEventLog:Sysmon (EventCode=1) [Process Creation]; WinEventLog:Sysmon (EventCode=2) [File Modification]. Analytic AN0259 (Linux): Detects creation or modification of cron jobs via crontab, /etc/cron.* directories, or systemd timer units with execution by unusual users or non-standard intervals. Log sources: auditd:SYSCALL (write, rename) [File Modification]; auditd:SYSCALL (execve) [Process Creation]; linux:osquery (crontab, systemd_timers) [Scheduled Job Creation].\nT1053 Scheduled Task/Job | Detection\nAnalytic AN0260 (macOS): Detects creation or alteration of LaunchAgents or LaunchDaemons with corresponding plist modification followed by execution of associated binaries. Log sources: macos:unifiedlog (process launch) [Process Creation]; fs:fsusage (disk activity on /Library/LaunchAgents or LaunchDaemons) [File Creation]; macos:osquery (launchd_jobs) [Scheduled Job Creation]. Analytic AN0261 (Containers): Detects unusual use of `cron` or `sleep` loops inside containers executing unfamiliar scripts or binaries repeatedly. Log sources: auditd:SYSCALL (execve) [Process Creation]; containerd:runtime (file change monitoring within /etc/cron.*, /tmp, or mounted volumes) [File Modification].\nT1053 Scheduled Task/Job | Detection\nAnalytic AN0262 (ESXi): Detects modification of ESXi cron jobs, local.sh scripts, or scheduled API calls to persist custom binaries or shell scripts. Log sources: esxi:vmkernel (Startup script and task execution logs) [Scheduled Job Creation]; esxi:hostd (shell access or job registration) [Command Execution]; esxi:cron (manual edits to /etc/rc.local.d/local.sh or cron.d) [File Modification].\nT1053 Scheduled Task/Job | Mitigations\nMitigation M1018 User Account Management: Limit privileges of user accounts and remediate Privilege Escalation vectors so only authorized administrators can create scheduled tasks on remote systems. Mitigation M1022 Restrict File and Directory Permissions: Restrict access by setting directory and file permissions that are not specific to users or privileged accounts. Mitigation M1026 Privileged Account Management: Configure the Increase Scheduling Priority option to only allow the Administrators group the rights to schedule a priority process. This can be can be configured through GPO: Computer Configuration > [Policies] > Windows Settings > Security Settings > Local Policies > User Rights Assignment: Increase scheduling priority.\nT1053 Scheduled Task/Job | Mitigations\nMitigation M1028 Operating System Configuration: Configure settings for scheduled tasks to force tasks to run under the context of the authenticated account instead of allowing them to run as SYSTEM. The associated Registry key is located at HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\SubmitControl. The setting can be configured through GPO: Computer Configuration > [Policies] > Windows Settings > Security Settings > Local Policies > Security Options: Domain Controller: Allow server operators to schedule tasks, set to disabled. Mitigation M1047 Audit: Toolkits like the PowerSploit framework contain PowerUp modules that can be used to explore systems for permission weaknesses in scheduled tasks that could be used to escalate privileges.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "T1053 dans MITRE ATT&CK représente l'utilisation de porte utilisateur distante (RDP, SSH, etc.) pour accéder à un système cible.",
+      "latency_s": 8.59,
+      "sources": []
+    },
+    {
+      "id": "q02",
+      "category": "mitre",
+      "question": "What is T1053.005 in MITRE ATT&CK?",
+      "expected_contains": [
+        "T1053.005",
+        "Scheduled Task"
+      ],
+      "reference_ids": [
+        "T1053.005"
+      ],
+      "reference_doc_ids": [
+        "mitre:T1053.005"
+      ],
+      "reference_text": "T1053.005 Scheduled Task | Overview\nMITRE ATT&CK technique T1053.005: Scheduled Task. Type: Sub-technique of T1053 (Scheduled Task/Job). Tactics: Execution, Persistence, Privilege Escalation. Platforms: Windows. Detection strategies: DET0441 Detection of Suspicious Scheduled Task Creation and Execution on Windows. Mitigations: M1018 User Account Management; M1026 Privileged Account Management; M1028 Operating System Configuration; M1047 Audit. Reference: https://attack.mitre.org/techniques/T1053/005\nT1053.005 Scheduled Task | Description\nAdversaries may abuse the Windows Task Scheduler to perform task scheduling for initial or recurring execution of malicious code. There are multiple ways to access the Task Scheduler in Windows. The schtasks utility can be run directly on the command line, or the Task Scheduler can be opened through the GUI within the Administrator Tools section of the Control Panel. In some cases, adversaries have used a .NET wrapper for the Windows Task Scheduler, and alternatively, adversaries have used the Windows netapi32 library and Windows Management Instrumentation (T1047) (WMI) to create a scheduled task. Adversaries may also utilize the Powershell Cmdlet `Invoke-CimMethod`, which leverages WMI class `PS_ScheduledTask` to create a scheduled task via an XML path.\nT1053.005 Scheduled Task | Description\nAn adversary may use Windows Task Scheduler to execute programs at system startup or on a scheduled basis for persistence. The Windows Task Scheduler can also be abused to conduct remote Execution as part of Lateral Movement and/or to run a process under the context of a specified account (such as SYSTEM). Similar to System Binary Proxy Execution (T1218), adversaries have also abused the Windows Task Scheduler to potentially mask one-time execution under signed/trusted system processes.\nT1053.005 Scheduled Task | Description\nAdversaries may also create \"hidden\" scheduled tasks (i.e. Hide Artifacts (T1564)) that may not be visible to defender tools and manual queries used to enumerate tasks. Specifically, an adversary may hide a task from `schtasks /query` and the Task Scheduler by deleting the associated Security Descriptor (SD) registry value (where deletion of this value must be completed using SYSTEM permissions). Adversaries may also employ alternate methods to hide tasks, such as altering the metadata (e.g., `Index` value) within associated registry keys.\nT1053.005 Scheduled Task | Detection\nDetection strategy DET0441: Detection of Suspicious Scheduled Task Creation and Execution on Windows. Analytic AN1221 (Windows): Detects the creation, modification, or deletion of scheduled tasks through Task Scheduler, WMI, PowerShell, or API-based methods followed by execution from svchost.exe or taskeng.exe. Includes detection of hidden or anomalous scheduled tasks, especially those created under SYSTEM or suspicious user contexts. Log sources: WinEventLog:Security (EventCode=4698) [Scheduled Job Creation]; WinEventLog:Security (EventCode=4702) [Scheduled Job Modification]; WinEventLog:Sysmon (EventCode=1) [Process Creation]; WinEventLog:Sysmon (EventCode=11) [File Creation]; WinEventLog:Sysmon (EventCode=13, 14) [Windows Registry Key Modification].\nT1053.005 Scheduled Task | Mitigations\nMitigation M1018 User Account Management: Limit privileges of user accounts and remediate Privilege Escalation vectors so only authorized administrators can create scheduled tasks on remote systems. Mitigation M1026 Privileged Account Management: Configure the Increase Scheduling Priority option to only allow the Administrators group the rights to schedule a priority process. This can be configured through GPO: Computer Configuration > [Policies] > Windows Settings > Security Settings > Local Policies > User Rights Assignment: Increase scheduling priority.\nT1053.005 Scheduled Task | Mitigations\nMitigation M1028 Operating System Configuration: Configure settings for scheduled tasks to force tasks to run under the context of the authenticated account instead of allowing them to run as SYSTEM. The associated Registry key is located at HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\SubmitControl. The setting can be configured through GPO: Computer Configuration > [Policies] > Windows Settings > Security Settings > Local Policies > Security Options: Domain Controller: Allow server operators to schedule tasks, set to disabled. Mitigation M1047 Audit: Toolkits like the PowerSploit framework contain PowerUp modules that can be used to explore systems for permission weaknesses in scheduled tasks that could be used to escalate privileges.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "T1053.005 dans MITRE ATT&CK représente l'utilisation de PowerShell pour exécuter des commandes. C'est une technique d'attaque qui consiste à utiliser PowerShell pour exécuter des commandes sur un système, ce qui peut être utilisé pour effectuer diverses actions malveillantes.",
+      "latency_s": 11.13,
+      "sources": []
+    },
+    {
+      "id": "q03",
+      "category": "mitre",
+      "question": "What is T1021.005 in MITRE ATT&CK?",
+      "expected_contains": [
+        "T1021.005",
+        "VNC"
+      ],
+      "reference_ids": [
+        "T1021.005"
+      ],
+      "reference_doc_ids": [
+        "mitre:T1021.005"
+      ],
+      "reference_text": "T1021.005 VNC | Overview\nMITRE ATT&CK technique T1021.005: VNC. Type: Sub-technique of T1021 (Remote Services). Tactics: Lateral Movement. Platforms: Linux, Windows, macOS. Detection strategies: DET0178 Behavioral Detection of Unauthorized VNC Remote Control Sessions. Mitigations: M1033 Limit Software Installation; M1037 Filter Network Traffic; M1042 Disable or Remove Feature or Program; M1047 Audit. Reference: https://attack.mitre.org/techniques/T1021/005\nT1021.005 VNC | Description\nAdversaries may use Valid Accounts (T1078) to remotely control machines using Virtual Network Computing (VNC). VNC is a platform-independent desktop sharing system that uses the RFB (“remote framebuffer”) protocol to enable users to remotely control another computer’s display by relaying the screen, mouse, and keyboard inputs over the network. VNC differs from Remote Desktop Protocol (T1021.001) as VNC is screen-sharing software rather than resource-sharing software. By default, VNC uses the system's authentication, but it can be configured to use credentials specific to VNC.\nT1021.005 VNC | Description\nAdversaries may abuse VNC to perform malicious actions as the logged-on user such as opening documents, downloading files, and running arbitrary commands. An adversary could use VNC to remotely control and monitor a system to collect data and information to pivot to other systems within the network. Specific VNC libraries/implementations have also been susceptible to brute force attacks and memory usage exploitation.\nT1021.005 VNC | Detection\nDetection strategy DET0178: Behavioral Detection of Unauthorized VNC Remote Control Sessions. Analytic AN0504 (Windows): Detection of VNC service or executable starting unexpectedly, followed by user session creation and interactive desktop activity (mouse/keyboard simulation). Log sources: WinEventLog:Sysmon (EventCode=1) [Process Creation]; WinEventLog:Security (EventCode=4624, 4648) [Logon Session Creation]; NSM:Flow (port 5900 inbound) [Network Traffic Flow]. Analytic AN0505 (Linux): Spawning of VNC-related processes (e.g., `x11vnc`, `vncserver`) coupled with authentication logs and port listening behavior on TCP 5900. Log sources: auditd:EXECVE (None) [Process Creation]; linux:syslog (None) [Logon Session Metadata]; NSM:Flow (TCP port 5900 open) [Network Traffic Flow].\nT1021.005 VNC | Detection\nAnalytic AN0506 (macOS): Detection of VNC-based remote control via `screensharingd` activity in Unified Logs along with concurrent remote login activity or suspicious user interaction. Log sources: macos:unifiedlog (authentication) [Logon Session Creation]; macos:osquery (process_events) [Process Creation]; NSM:firewall (inbound connection to port 5900) [Network Traffic Flow].\nT1021.005 VNC | Mitigations\nMitigation M1033 Limit Software Installation: Restrict software installation to user groups that require it. A VNC server must be manually installed by the user or adversary. Mitigation M1037 Filter Network Traffic: VNC defaults to TCP ports 5900 for the server, 5800 for browser access, and 5500 for a viewer in listening mode. Filtering or blocking these ports will inhibit VNC traffic utilizing default ports. Mitigation M1042 Disable or Remove Feature or Program: Uninstall any VNC server software where not required. Mitigation M1047 Audit: Inventory workstations for unauthorized VNC server software.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "T1021.005 dans MITRE ATT&CK représente la technique \"Lateral Tool Transfer\" (Transfert d'outil latéral). Cela signifie que l'acteur malveillant transfère un outil de son système vers un autre système cible dans le but d'étendre sa capacité d'action.",
+      "latency_s": 11.53,
+      "sources": []
+    },
+    {
+      "id": "q04",
+      "category": "mitre",
+      "question": "What is T1560.001 in MITRE ATT&CK?",
+      "expected_contains": [
+        "T1560.001",
+        "Archive via Utility"
+      ],
+      "reference_ids": [
+        "T1560.001"
+      ],
+      "reference_doc_ids": [
+        "mitre:T1560.001"
+      ],
+      "reference_text": "T1560.001 Archive via Utility | Overview\nMITRE ATT&CK technique T1560.001: Archive via Utility. Type: Sub-technique of T1560 (Archive Collected Data). Tactics: Collection. Platforms: Linux, macOS, Windows. Detection strategies: DET0298 Detect Archiving via Utility (T1560.001). Mitigations: M1047 Audit. Reference: https://attack.mitre.org/techniques/T1560/001\nT1560.001 Archive via Utility | Description\nAdversaries may use utilities to compress and/or encrypt collected data prior to exfiltration. Many utilities include functionalities to compress, encrypt, or otherwise package data into a format that is easier/more secure to transport. Adversaries may abuse various utilities to compress or encrypt data before exfiltration. Some third party utilities may be preinstalled, such as tar on Linux and macOS or zip on Windows systems.\nT1560.001 Archive via Utility | Description\nOn Windows, diantz or makecab may be used to package collected files into a cabinet (.cab) file. diantz may also be used to download and compress files from remote locations (i.e. Remote Data Staging (T1074.002)). xcopy on Windows can copy files and directories with a variety of options. Additionally, adversaries may use certutil to Base64 encode collected data before exfiltration. Adversaries may use also third party utilities, such as 7-Zip, WinRAR, and WinZip, to perform similar activities.\nT1560.001 Archive via Utility | Detection\nDetection strategy DET0298: Detect Archiving via Utility (T1560.001). Analytic AN0831 (Windows): Detects adversarial archiving using built-in or third-party utilities (makecab, diantz, xcopy, certutil, 7z, WinRAR, WinZip). Correlates suspicious process creation events with command-line arguments for compression/encoding, followed by creation of archive files (.cab, .zip, .7z, .rar). Identifies anomalous loading of crypt32.dll for encryption operations or execution of diantz.exe to compress remotely staged files. Log sources: WinEventLog:Security (EventCode=4688) [Process Creation]; WinEventLog:Sysmon (EventCode=11) [File Creation]; WinEventLog:Sysmon (EventCode=7) [Module Load].\nT1560.001 Archive via Utility | Detection\nAnalytic AN0832 (Linux): Detects execution of archiving utilities (tar, gzip, bzip2, xz, zip, openssl) followed by suspicious archive file creation. Correlates archive creation in temporary or staging directories with execution of commands involving compression or encryption options. Log sources: auditd:SYSCALL (execve: Execution of tar, gzip, bzip2, xz, zip, or openssl with compression/encryption arguments) [Command Execution]; auditd:FILE (create: Creation of archive files in /tmp, /var/tmp, or user home directories) [File Creation].\nT1560.001 Archive via Utility | Detection\nAnalytic AN0833 (macOS): Detects invocation of macOS-native archiving utilities (zip, ditto, hdiutil) or openssl used for encryption. Correlates execution with archive or encrypted file creation (.zip, .dmg, .tar.gz) in user or temporary directories. Identifies anomalous use of archiving commands by Office applications or daemons. Log sources: macos:unifiedlog (Execution of zip, ditto, hdiutil, or openssl by processes not normally associated with archiving) [Process Creation]; macos:unifiedlog (Creation of .zip, .dmg, .tar.gz files in /Users, /tmp, or application directories) [File Creation].\nT1560.001 Archive via Utility | Mitigations\nMitigation M1047 Audit: System scans can be performed to identify unauthorized archival utilities.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "T1560.001 dans MITRE ATT&CK représente l'utilisation de l'outil PowerShell pour exécuter des commandes. C'est une technique d'attaque connue sous le nom de \"PowerShell Empire\" ou \"PowerShell Empire Post-Exploitation\".",
+      "latency_s": 9.6,
+      "sources": []
+    },
+    {
+      "id": "q05",
+      "category": "mitre",
+      "question": "What is T1055.011 in MITRE ATT&CK?",
+      "expected_contains": [
+        "T1055.011",
+        "Extra Window Memory Injection"
+      ],
+      "reference_ids": [
+        "T1055.011"
+      ],
+      "reference_doc_ids": [
+        "mitre:T1055.011"
+      ],
+      "reference_text": "T1055.011 Extra Window Memory Injection | Overview\nMITRE ATT&CK technique T1055.011: Extra Window Memory Injection. Type: Sub-technique of T1055 (Process Injection). Tactics: Stealth, Privilege Escalation. Platforms: Windows. Detection strategies: DET0217 Detection Strategy for Extra Window Memory (EWM) Injection on Windows. Mitigations: M1040 Behavior Prevention on Endpoint. Reference: https://attack.mitre.org/techniques/T1055/011\nT1055.011 Extra Window Memory Injection | Description\nAdversaries may inject malicious code into a process via Extra Window Memory (EWM) in order to evade process-based defenses as well as possibly elevate privileges. EWM injection is a method of executing arbitrary code in the address space of a separate live process.\nT1055.011 Extra Window Memory Injection | Description\nBefore creating a window, graphical Windows-based processes must register a windows class, which stipulates appearance and behavior (via windows procedures, which are functions that handle input/output of data). Registration of new windows classes can include a request for up to 40 bytes of EWM to be appended to the allocated memory of each instance of that class. This EWM is intended to store data specific to that window and has specific application programming interface (API) functions to set and get its value.\nT1055.011 Extra Window Memory Injection | Description\nAlthough small, the EWM is large enough to store a 32-bit pointer and is often used to point to a windows procedure. Malware may possibly utilize this memory location in part of an attack chain that includes writing code to shared sections of the process’s memory, placing a pointer to the code in EWM, then invoking execution by returning execution control to the address in the process’s EWM.\nT1055.011 Extra Window Memory Injection | Description\nExecution granted through EWM injection may allow access to both the target process's memory and possibly elevated privileges. Writing payloads to shared sections also avoids the use of highly monitored API calls such as WriteProcessMemory and CreateRemoteThread. More sophisticated malware samples may also potentially bypass protection mechanisms such as data execution prevention (DEP) by triggering a combination of windows procedures and other system functions that will rewrite the malicious payload inside an executable portion of the target process. Running code in the context of another process may allow access to the process's memory, system/network resources, and possibly elevated privileges. Execution via EWM injection may also evade detection from security products since the execution is masked under a legitimate process.\nT1055.011 Extra Window Memory Injection | Detection\nDetection strategy DET0217: Detection Strategy for Extra Window Memory (EWM) Injection on Windows. Analytic AN0608 (Windows): Detects adversary manipulation of Extra Window Memory (EWM) in a GUI process, where the attacker uses SetWindowLong or SetClassLong to redirect function pointers to injected shellcode stored in shared memory, then triggers execution via a window message like SendNotifyMessage. Log sources: WinEventLog:Sysmon (EventCode=10) [Process Access]; etw:Microsoft-Windows-Win32k (SetWindowLong, SetClassLong, NtUserMessageCall, SendNotifyMessage, PostMessage) [OS API Execution]; WinEventLog:Security (EventCode=4688) [Process Creation].\nT1055.011 Extra Window Memory Injection | Mitigations\nMitigation M1040 Behavior Prevention on Endpoint: Some endpoint security solutions can be configured to block some types of process injection based on common sequences of behavior that occur during the injection process.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "T1055.011 dans MITRE ATT&CK représente l'utilisation de PowerShell pour exécuter des commandes. C'est une technique d'attaque connue sous le nom de \"PowerShell Empire\" dans le cadre de l'attaque T1055, qui concerne l'utilisation de PowerShell pour accéder à des fonctionnalités d'administration à distance.",
+      "latency_s": 13.11,
+      "sources": []
+    },
+    {
+      "id": "q06",
+      "category": "mitre",
+      "question": "What is T1205.002 in MITRE ATT&CK?",
+      "expected_contains": [
+        "T1205.002",
+        "Socket Filters"
+      ],
+      "reference_ids": [
+        "T1205.002"
+      ],
+      "reference_doc_ids": [
+        "mitre:T1205.002"
+      ],
+      "reference_text": "T1205.002 Socket Filters | Overview\nMITRE ATT&CK technique T1205.002: Socket Filters. Type: Sub-technique of T1205 (Traffic Signaling). Tactics: Stealth, Persistence, Command and Control. Platforms: Linux, macOS, Windows. Detection strategies: DET0162 Socket-filter trigger → on-host raw-socket activity → reverse connection (T1205.002). Mitigations: M1037 Filter Network Traffic. Reference: https://attack.mitre.org/techniques/T1205/002\nT1205.002 Socket Filters | Description\nAdversaries may attach filters to a network socket to monitor then activate backdoors used for persistence or command and control. With elevated permissions, adversaries can use features such as the `libpcap` library to open sockets and install filters to allow or disallow certain types of data to come through the socket. The filter may apply to all traffic passing through the specified network interface (or every interface if not specified). When the network interface receives a packet matching the filter criteria, additional actions can be triggered on the host, such as activation of a reverse shell.\nT1205.002 Socket Filters | Description\nTo establish a connection, an adversary sends a crafted packet to the targeted host that matches the installed filter criteria. Adversaries have used these socket filters to trigger the installation of implants, conduct ping backs, and to invoke command shells. Communication with these socket filters may also be used in conjunction with Protocol Tunneling (T1572).\nT1205.002 Socket Filters | Description\nFilters can be installed on any Unix-like platform with `libpcap` installed or on Windows hosts using `Winpcap`. Adversaries may use either `libpcap` with `pcap_setfilter` or the standard library function `setsockopt` with `SO_ATTACH_FILTER` options. Since the socket connection is not active until the packet is received, this behavior may be difficult to detect due to the lack of activity on a host, low CPU overhead, and limited visibility into raw socket usage.\nT1205.002 Socket Filters | Detection\nDetection strategy DET0162: Socket-filter trigger → on-host raw-socket activity → reverse connection (T1205.002). Analytic AN0462 (Windows): Adversary installs/uses packet-capture or raw-socket capability (WinPcap/Npcap, wpcap/packet DLLs or raw socket attach) and sets a filter. A crafted inbound packet is observed; within a short window the host process that loaded capture libraries initiates an outbound connection (e.g., reverse shell) to the packet origin. Log sources: WinEventLog:System (EventCode=7045) [Service Creation]; WinEventLog:Sysmon (EventCode=1) [Process Creation]; WinEventLog:Sysmon (EventCode=3, 22) [Network Connection Creation]; WinEventLog:Sysmon (EventCode=6) [Driver Load]; WinEventLog:Sysmon (EventCode=7) [Module Load]; NSM:Flow (Single, low-volume inbound packet (REJ/S0/OTH or uncommon dport/protocol) from src_ip followed by outbound SF connection to src_ip.) [Network Traffic Content].\nT1205.002 Socket Filters | Detection\nAnalytic AN0463 (Linux): Process creates a raw/packet socket and attaches a (e)BPF filter (setsockopt SO_ATTACH_FILTER/ATTACH_BPF or bpf(BPF_PROG_LOAD)). Immediately after a matching inbound packet, the same process binds/connects outward to a remote host (reverse shell or beacon). Log sources: auditd:SYSCALL (socket(AF_PACKET|AF_INET, SOCK_RAW, *), setsockopt(… SO_ATTACH_FILTER|SO_ATTACH_BPF …), bpf(cmd=BPF_PROG_LOAD), open/openat path=\"/dev/bpf*\" (BSD/macOS-like) or setcap cap_net_raw.) [Process Creation]; linux:osquery (family=AF_PACKET or protocol raw; process name not in allowlist.) [Network Connection Creation]; NSM:Flow (Rare inbound packet characteristics (ICMP/UDP/TCP to uncommon port) from src_ip followed ≤TimeWindow by outbound SF from same host to src_ip.) [Network Traffic Content].\nT1205.002 Socket Filters | Detection\nAnalytic AN0464 (macOS): Process opens /dev/bpf* (libpcap) or loads NetworkExtension filter, then after a crafted inbound packet the same process initiates an outbound connection to the trigger origin. Log sources: OpenBSM:AuditTrail (open/openat of /dev/bpf*; ioctl BIOCSETF-like operations.) [Process Creation]; macos:unifiedlog (First outbound connection from the same PID/user shortly after an inbound trigger.) [Network Connection Creation]; NSM:Flow (Inbound one-off packet to uncommon port → outbound SF to same src_ip within TimeWindow.) [Network Traffic Content].\nT1205.002 Socket Filters | Mitigations\nMitigation M1037 Filter Network Traffic: Mitigation of some variants of this technique could be achieved through the use of stateful firewalls, depending upon how it is implemented.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "T1205.002 dans MITRE ATT&CK représente la technique \"Lateral Tool Transfer\", sous-technique \"Remote File Copy\". C'est une méthode utilisée par les attaquants pour transférer des outils ou des données vers un hôte interne à partir d'un hôte externe.",
+      "latency_s": 11.53,
+      "sources": []
+    },
+    {
+      "id": "q07",
+      "category": "mitre",
+      "question": "What is T1053.002 in MITRE ATT&CK?",
+      "expected_contains": [
+        "T1053.002",
+        "At"
+      ],
+      "reference_ids": [
+        "T1053.002"
+      ],
+      "reference_doc_ids": [
+        "mitre:T1053.002"
+      ],
+      "reference_text": "T1053.002 At | Overview\nMITRE ATT&CK technique T1053.002: At. Type: Sub-technique of T1053 (Scheduled Task/Job). Tactics: Execution, Persistence, Privilege Escalation. Platforms: Windows, Linux, macOS. Detection strategies: DET0333 Cross-Platform Detection of Scheduled Task/Job Abuse via `at` Utility. Mitigations: M1018 User Account Management; M1026 Privileged Account Management; M1028 Operating System Configuration; M1047 Audit. Reference: https://attack.mitre.org/techniques/T1053/002\nT1053.002 At | Description\nAdversaries may abuse the at utility to perform task scheduling for initial or recurring execution of malicious code. The at utility exists as an executable within Windows, Linux, and macOS for scheduling tasks at a specified time and date. Although deprecated in favor of Scheduled Task (T1053.005)'s schtasks in Windows environments, using at requires that the Task Scheduler service be running, and the user to be logged on as a member of the local Administrators group. In addition to explicitly running the `at` command, adversaries may also schedule a task with at by directly leveraging the Windows Management Instrumentation (T1047) `Win32_ScheduledJob` WMI class.\nT1053.002 At | Description\nOn Linux and macOS, at may be invoked by the superuser as well as any users added to the at.allow file. If the at.allow file does not exist, the at.deny file is checked. Every username not listed in at.deny is allowed to invoke at. If the at.deny exists and is empty, global use of at is permitted. If neither file exists (which is often the baseline) only the superuser is allowed to use at. Adversaries may use at to execute programs at system startup or on a scheduled basis for Persistence. at can also be abused to conduct remote Execution as part of Lateral Movement and/or to run a process under the context of a specified account (such as SYSTEM).\nT1053.002 At | Description\nIn Linux environments, adversaries may also abuse at to break out of restricted environments by using a task to spawn an interactive system shell or to run system commands. Similarly, at may also be used for Privilege Escalation if the binary is allowed to run as superuser via sudo.\nT1053.002 At | Detection\nDetection strategy DET0333: Cross-Platform Detection of Scheduled Task/Job Abuse via `at` Utility. Analytic AN0943 (Windows): Detects creation of scheduled tasks via `at.exe` or WMI `Win32_ScheduledJob` class, followed by execution of anomalous processes by svchost.exe or taskeng.exe. Log sources: WinEventLog:Security (EventCode=4698) [Scheduled Job Creation]; WinEventLog:Sysmon (EventCode=1) [Process Creation]. Analytic AN0944 (Linux): Detects usage of `at` command to schedule jobs, followed by job execution and modification of job files under /var/spool/cron/atjobs. Log sources: auditd:SYSCALL (execve) [Process Creation]; auditd:SYSCALL (write) [File Modification].\nT1053.002 At | Detection\nAnalytic AN0945 (macOS): Detects user or root invocation of `at` command to schedule a job, followed by job execution using LaunchServices and activity in /usr/lib/cron/at. Log sources: macos:unifiedlog (process: at, job runner) [Command Execution]; fs:fsusage (file access to /usr/lib/cron/at and job execution path) [File Modification]; macos:osquery (process_events) [Process Creation].\nT1053.002 At | Mitigations\nMitigation M1018 User Account Management: Limit privileges of user accounts and remediate Privilege Escalation vectors so only authorized administrators can create scheduled tasks on remote systems. In Linux environments, users account-level access to at can be managed using at.allow and at.deny files. Users listed in the at.allow are enabled to schedule actions using at, whereas users listed in at.deny file disabled from the utility. Mitigation M1026 Privileged Account Management: Configure the Increase Scheduling Priority option to only allow the Administrators group the rights to schedule a priority process. This can be configured through GPO: Computer Configuration > [Policies] > Windows Settings > Security Settings > Local Policies > User Rights Assignment: Increase scheduling priority.\nT1053.002 At | Mitigations\nMitigation M1028 Operating System Configuration: Configure settings for scheduled tasks to force tasks to run under the context of the authenticated account instead of allowing them to run as SYSTEM. The associated Registry key is located at HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\SubmitControl. The setting can be configured through GPO: Computer Configuration > [Policies] > Windows Settings > Security Settings > Local Policies > Security Options: Domain Controller: Allow server operators to schedule tasks, set to disabled.\nT1053.002 At | Mitigations\nMitigation M1047 Audit: Toolkits like the PowerSploit framework contain PowerUp modules that can be used to explore systems for permission weaknesses in scheduled tasks that could be used to escalate privileges. Windows operating system also creates a registry key specifically associated with the creation of a scheduled task on the destination host at: Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tree\\At1. In Linux and macOS environments, scheduled tasks using at can be audited locally, or through centrally collected logging, using syslog, or auditd events from the host.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "T1053.002 dans MITRE ATT&CK représente l'utilisation de PowerShell pour exécuter des commandes. C'est une technique d'attaque courante utilisée par les pirates informatiques pour exécuter des actions malveillantes sur un système.",
+      "latency_s": 9.9,
+      "sources": []
+    },
+    {
+      "id": "q08",
+      "category": "mitre",
+      "question": "What is T1053.003 in MITRE ATT&CK?",
+      "expected_contains": [
+        "T1053.003",
+        "Cron"
+      ],
+      "reference_ids": [
+        "T1053.003"
+      ],
+      "reference_doc_ids": [
+        "mitre:T1053.003"
+      ],
+      "reference_text": "T1053.003 Cron | Overview\nMITRE ATT&CK technique T1053.003: Cron. Type: Sub-technique of T1053 (Scheduled Task/Job). Tactics: Execution, Persistence, Privilege Escalation. Platforms: Linux, macOS, ESXi. Detection strategies: DET0290 Cross-Platform Detection of Cron Job Abuse for Persistence and Execution. Mitigations: M1018 User Account Management; M1047 Audit. Reference: https://attack.mitre.org/techniques/T1053/003\nT1053.003 Cron | Description\nAdversaries may abuse the cron utility to perform task scheduling for initial or recurring execution of malicious code. The cron utility is a time-based job scheduler for Unix-like operating systems. The crontab file contains the schedule of cron entries to be run and the specified times for execution. Any crontab files are stored in operating system-specific file paths. An adversary may use cron in Linux or Unix environments to execute programs at system startup or on a scheduled basis for Persistence. In ESXi environments, cron jobs must be created directly via the crontab file (e.g., `/var/spool/cron/crontabs/root`).\nT1053.003 Cron | Detection\nDetection strategy DET0290: Cross-Platform Detection of Cron Job Abuse for Persistence and Execution. Analytic AN0805 (Linux): Detects creation or modification of crontab entries by non-root users or from abnormal parent processes, followed by the execution of uncommon binaries at scheduled intervals. Log sources: auditd:SYSCALL (write) [File Modification]; auditd:SYSCALL (execve) [Process Creation]. Analytic AN0806 (macOS): Detects crontab job additions or modifications via `crontab` utility or direct edits, especially those created by interactive users executing hidden or renamed scripts. Log sources: macos:unifiedlog (process: crontab edits, launch of cron job) [Scheduled Job Creation]; fs:fsusage (file access to /usr/lib/cron/tabs/ and cron output files) [File Modification].\nT1053.003 Cron | Detection\nAnalytic AN0807 (ESXi): Detects direct modification of crontab entries in /var/spool/cron/crontabs/root or /etc/rc.local.d/local.sh followed by execution of scripts linked to lateral movement or malware persistence. Log sources: esxi:hostd (modification of crontab or local.sh entries) [File Modification]; esxi:cron (execution of scheduled job) [Scheduled Job Creation]; esxi:vmkernel (spawned shell or execution environment activity) [Process Creation].\nT1053.003 Cron | Mitigations\nMitigation M1018 User Account Management: cron permissions are controlled by /etc/cron.allow and /etc/cron.deny. If there is a cron.allow file, then the user or users that need to use cron will need to be listed in the file. cron.deny is used to explicitly disallow users from using cron. If neither files exist, then only the super user is allowed to run cron. Mitigation M1047 Audit: Review changes to the cron schedule. cron execution can be reviewed within the /var/log directory. To validate the location of the cron log file, check the syslog config at /etc/rsyslog.conf or /etc/syslog.conf.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "T1053.003 dans MITRE ATT&CK représente l'utilisation de PowerShell pour exécuter des commandes. C'est une technique d'attaque courante utilisée par les pirates informatiques pour exécuter des actions sur un système informatique.",
+      "latency_s": 9.73,
+      "sources": []
+    },
+    {
+      "id": "q09",
+      "category": "mitre",
+      "question": "What is T1053.007 in MITRE ATT&CK?",
+      "expected_contains": [
+        "T1053.007",
+        "Container Orchestration Job"
+      ],
+      "reference_ids": [
+        "T1053.007"
+      ],
+      "reference_doc_ids": [
+        "mitre:T1053.007"
+      ],
+      "reference_text": "T1053.007 Container Orchestration Job | Overview\nMITRE ATT&CK technique T1053.007: Container Orchestration Job. Type: Sub-technique of T1053 (Scheduled Task/Job). Tactics: Execution, Persistence, Privilege Escalation. Platforms: Containers. Detection strategies: DET0206 Detection of Malicious Kubernetes CronJob Scheduling. Mitigations: M1018 User Account Management; M1026 Privileged Account Management. Reference: https://attack.mitre.org/techniques/T1053/007\nT1053.007 Container Orchestration Job | Description\nAdversaries may abuse task scheduling functionality provided by container orchestration tools such as Kubernetes to schedule deployment of containers configured to execute malicious code. Container orchestration jobs run these automated tasks at a specific date and time, similar to cron jobs on a Linux system. Deployments of this type can also be configured to maintain a quantity of containers over time, automating the process of maintaining persistence within a cluster. In Kubernetes, a CronJob may be used to schedule a Job that runs one or more containers to perform specific tasks. An adversary therefore may utilize a CronJob to schedule deployment of a Job that executes malicious code in various nodes within a cluster.\nT1053.007 Container Orchestration Job | Detection\nDetection strategy DET0206: Detection of Malicious Kubernetes CronJob Scheduling. Analytic AN0582 (Containers): Detects abuse of container orchestration platforms (e.g., Kubernetes) where adversaries create CronJobs to maintain persistence or execute malicious Jobs across the cluster. Log sources: kubernetes:apiserver (verb=create, resource=cronjobs, group=batch) [Scheduled Job Creation]; kubernetes:events (container start/stop activity via Docker, containerd, or CRI-O) [Container Creation]; container:proxy (outbound/inbound network activity from spawned pods) [Network Traffic Content].\nT1053.007 Container Orchestration Job | Mitigations\nMitigation M1018 User Account Management: Limit privileges of user accounts and remediate privilege escalation vectors so only authorized administrators can create container orchestration jobs. Mitigation M1026 Privileged Account Management: Ensure containers are not running as root by default. In Kubernetes environments, consider defining Pod Security Standards that prevent pods from running privileged containers.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "T1053.007 dans MITRE ATT&CK représente l'utilisation de PowerShell pour exécuter des commandes. C'est une technique d'attaque qui consiste à utiliser PowerShell pour exécuter des commandes sur un système, ce qui peut être utilisé pour effectuer diverses actions malveillantes.",
+      "latency_s": 11.26,
+      "sources": []
+    },
+    {
+      "id": "q10",
+      "category": "mitre",
+      "question": "What is the MITRE ATT&CK ID for Scheduled Task?",
+      "expected_contains": [
+        "T1053.005",
+        "Scheduled Task"
+      ],
+      "reference_ids": [
+        "T1053.005"
+      ],
+      "reference_doc_ids": [
+        "mitre:T1053.005"
+      ],
+      "reference_text": "T1053.005 Scheduled Task | Overview\nMITRE ATT&CK technique T1053.005: Scheduled Task. Type: Sub-technique of T1053 (Scheduled Task/Job). Tactics: Execution, Persistence, Privilege Escalation. Platforms: Windows. Detection strategies: DET0441 Detection of Suspicious Scheduled Task Creation and Execution on Windows. Mitigations: M1018 User Account Management; M1026 Privileged Account Management; M1028 Operating System Configuration; M1047 Audit. Reference: https://attack.mitre.org/techniques/T1053/005\nT1053.005 Scheduled Task | Description\nAdversaries may abuse the Windows Task Scheduler to perform task scheduling for initial or recurring execution of malicious code. There are multiple ways to access the Task Scheduler in Windows. The schtasks utility can be run directly on the command line, or the Task Scheduler can be opened through the GUI within the Administrator Tools section of the Control Panel. In some cases, adversaries have used a .NET wrapper for the Windows Task Scheduler, and alternatively, adversaries have used the Windows netapi32 library and Windows Management Instrumentation (T1047) (WMI) to create a scheduled task. Adversaries may also utilize the Powershell Cmdlet `Invoke-CimMethod`, which leverages WMI class `PS_ScheduledTask` to create a scheduled task via an XML path.\nT1053.005 Scheduled Task | Description\nAn adversary may use Windows Task Scheduler to execute programs at system startup or on a scheduled basis for persistence. The Windows Task Scheduler can also be abused to conduct remote Execution as part of Lateral Movement and/or to run a process under the context of a specified account (such as SYSTEM). Similar to System Binary Proxy Execution (T1218), adversaries have also abused the Windows Task Scheduler to potentially mask one-time execution under signed/trusted system processes.\nT1053.005 Scheduled Task | Description\nAdversaries may also create \"hidden\" scheduled tasks (i.e. Hide Artifacts (T1564)) that may not be visible to defender tools and manual queries used to enumerate tasks. Specifically, an adversary may hide a task from `schtasks /query` and the Task Scheduler by deleting the associated Security Descriptor (SD) registry value (where deletion of this value must be completed using SYSTEM permissions). Adversaries may also employ alternate methods to hide tasks, such as altering the metadata (e.g., `Index` value) within associated registry keys.\nT1053.005 Scheduled Task | Detection\nDetection strategy DET0441: Detection of Suspicious Scheduled Task Creation and Execution on Windows. Analytic AN1221 (Windows): Detects the creation, modification, or deletion of scheduled tasks through Task Scheduler, WMI, PowerShell, or API-based methods followed by execution from svchost.exe or taskeng.exe. Includes detection of hidden or anomalous scheduled tasks, especially those created under SYSTEM or suspicious user contexts. Log sources: WinEventLog:Security (EventCode=4698) [Scheduled Job Creation]; WinEventLog:Security (EventCode=4702) [Scheduled Job Modification]; WinEventLog:Sysmon (EventCode=1) [Process Creation]; WinEventLog:Sysmon (EventCode=11) [File Creation]; WinEventLog:Sysmon (EventCode=13, 14) [Windows Registry Key Modification].\nT1053.005 Scheduled Task | Mitigations\nMitigation M1018 User Account Management: Limit privileges of user accounts and remediate Privilege Escalation vectors so only authorized administrators can create scheduled tasks on remote systems. Mitigation M1026 Privileged Account Management: Configure the Increase Scheduling Priority option to only allow the Administrators group the rights to schedule a priority process. This can be configured through GPO: Computer Configuration > [Policies] > Windows Settings > Security Settings > Local Policies > User Rights Assignment: Increase scheduling priority.\nT1053.005 Scheduled Task | Mitigations\nMitigation M1028 Operating System Configuration: Configure settings for scheduled tasks to force tasks to run under the context of the authenticated account instead of allowing them to run as SYSTEM. The associated Registry key is located at HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\SubmitControl. The setting can be configured through GPO: Computer Configuration > [Policies] > Windows Settings > Security Settings > Local Policies > Security Options: Domain Controller: Allow server operators to schedule tasks, set to disabled. Mitigation M1047 Audit: Toolkits like the PowerSploit framework contain PowerUp modules that can be used to explore systems for permission weaknesses in scheduled tasks that could be used to escalate privileges.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "L'ID MITRE ATT&CK pour la technique de création de tâches programmées est T1053: Scheduled Task / Job.",
+      "latency_s": 5.53,
+      "sources": []
+    },
+    {
+      "id": "q11",
+      "category": "cve",
+      "question": "What is CVE-2024-13785?",
+      "expected_contains": [
+        "CVE-2024-13785",
+        "ARForms"
+      ],
+      "reference_ids": [
+        "CVE-2024-13785"
+      ],
+      "reference_doc_ids": [
+        "cve:CVE-2024-13785"
+      ],
+      "reference_text": "CVE-2024-13785 | Overview\nVulnerability CVE-2024-13785. Severity: MEDIUM. CVSS base score: 5.6. Weaknesses (CWE): CWE-94. Published: 2026-03-21. Last modified: 2026-03-23.\nCVE-2024-13785 | Description\nThe The Contact Form, Survey, Quiz & Popup Form Builder – ARForms plugin for WordPress is vulnerable to arbitrary shortcode execution in all versions up to, and including, 1.7.2. This is due to the software allowing users to execute an action that does not properly validate a value before running do_shortcode. This makes it possible for unauthenticated attackers to execute arbitrary shortcodes.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "Je ne peux pas répondre à votre question car CVE-2024-13785 n'a pas encore été publié. Les CVE (Common Vulnerabilities and Exposures) sont des identifiants uniques pour les vulnérabilités informatiques connues. Ils sont publiés par l'Open Web Application Security Project (OWASP) et sont utilisés pour identifier et documenter les vulnérabilités dans les logiciels et les systèmes d'exploitation.",
+      "latency_s": 16.67,
+      "sources": []
+    },
+    {
+      "id": "q12",
+      "category": "cve",
+      "question": "What is the severity and weakness of CVE-2024-13785?",
+      "expected_contains": [
+        "MEDIUM",
+        "CWE-94"
+      ],
+      "reference_ids": [
+        "CVE-2024-13785"
+      ],
+      "reference_doc_ids": [
+        "cve:CVE-2024-13785"
+      ],
+      "reference_text": "CVE-2024-13785 | Overview\nVulnerability CVE-2024-13785. Severity: MEDIUM. CVSS base score: 5.6. Weaknesses (CWE): CWE-94. Published: 2026-03-21. Last modified: 2026-03-23.\nCVE-2024-13785 | Description\nThe The Contact Form, Survey, Quiz & Popup Form Builder – ARForms plugin for WordPress is vulnerable to arbitrary shortcode execution in all versions up to, and including, 1.7.2. This is due to the software allowing users to execute an action that does not properly validate a value before running do_shortcode. This makes it possible for unauthenticated attackers to execute arbitrary shortcodes.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "Je ne peux pas répondre à votre question car CVE-2024-13785 n'existe pas encore. En effet, les identifiants CVE (Common Vulnerabilities and Exposures) sont attribués à des vulnérabilités connues et documentées, et ce n'est pas le cas pour CVE-2024-13785.",
+      "latency_s": 13.76,
+      "sources": []
+    },
+    {
+      "id": "q13",
+      "category": "cve",
+      "question": "What is CVE-2025-13910?",
+      "expected_contains": [
+        "CVE-2025-13910",
+        "WP-WebAuthn"
+      ],
+      "reference_ids": [
+        "CVE-2025-13910"
+      ],
+      "reference_doc_ids": [
+        "cve:CVE-2025-13910"
+      ],
+      "reference_text": "CVE-2025-13910 | Overview\nVulnerability CVE-2025-13910. Severity: MEDIUM. CVSS base score: 6.1. Weaknesses (CWE): CWE-79. Published: 2026-03-21. Last modified: 2026-03-23.\nCVE-2025-13910 | Description\nThe WP-WebAuthn plugin for WordPress is vulnerable to Unauthenticated Stored Cross-Site Scripting via the `wwa_auth` AJAX endpoint in all versions up to, and including, 1.3.4 due to insufficient input sanitization and output escaping on user supplied attributes logged by the plugin. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses the plugin's log page, provided that the logging option is enabled in the plugin settings.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "Je ne peux pas répondre à votre question car CVE-2025-13910 n'a pas encore été enregistré. Les CVE (Common Vulnerabilities and Exposures) sont des identifiants uniques pour les vulnérabilités informatiques connues. Ils sont publiés par MITRE Corporation et sont utilisés pour identifier les vulnérabilités dans les logiciels et les systèmes d'exploitation. Le CVE-2025-13910 n'a pas encore été enregistré, donc il n'y a pas d'informations disponibles sur cette vulnérabilité.",
+      "latency_s": 21.69,
+      "sources": []
+    },
+    {
+      "id": "q14",
+      "category": "cve",
+      "question": "What is the severity and weakness of CVE-2025-13910?",
+      "expected_contains": [
+        "MEDIUM",
+        "CWE-79"
+      ],
+      "reference_ids": [
+        "CVE-2025-13910"
+      ],
+      "reference_doc_ids": [
+        "cve:CVE-2025-13910"
+      ],
+      "reference_text": "CVE-2025-13910 | Overview\nVulnerability CVE-2025-13910. Severity: MEDIUM. CVSS base score: 6.1. Weaknesses (CWE): CWE-79. Published: 2026-03-21. Last modified: 2026-03-23.\nCVE-2025-13910 | Description\nThe WP-WebAuthn plugin for WordPress is vulnerable to Unauthenticated Stored Cross-Site Scripting via the `wwa_auth` AJAX endpoint in all versions up to, and including, 1.3.4 due to insufficient input sanitization and output escaping on user supplied attributes logged by the plugin. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses the plugin's log page, provided that the logging option is enabled in the plugin settings.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "Je ne peux pas répondre à votre question car le numéro CVE-2025-13910 n'existe pas encore. En effet, les numéros CVE sont attribués à des vulnérabilités connues et documentées, et celui-ci n'a pas encore été publié.",
+      "latency_s": 11.5,
+      "sources": []
+    },
+    {
+      "id": "q15",
+      "category": "cve",
+      "question": "What is CVE-2025-14037?",
+      "expected_contains": [
+        "CVE-2025-14037",
+        "Invelity Product Feeds"
+      ],
+      "reference_ids": [
+        "CVE-2025-14037"
+      ],
+      "reference_doc_ids": [
+        "cve:CVE-2025-14037"
+      ],
+      "reference_text": "CVE-2025-14037 | Overview\nVulnerability CVE-2025-14037. Severity: HIGH. CVSS base score: 8.1. Weaknesses (CWE): CWE-352. Published: 2026-03-21. Last modified: 2026-03-23.\nCVE-2025-14037 | Description\nThe Invelity Product Feeds plugin for WordPress is vulnerable to arbitrary file deletion via path traversal in all versions up to, and including, 1.2.6. This is due to missing validation and sanitization in the 'createManageFeedPage' function. This makes it possible for authenticated administrator-level attackers to delete arbitrary files on the server via specially crafted requests that include path traversal sequences, granted they can trick an admin into clicking a malicious link.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "Je ne peux pas répondre à votre question car CVE-2025-14037 n'a pas encore été enregistré. Les CVE (Common Vulnerabilities and Exposures) sont des identifiants uniques pour les vulnérabilités de sécurité informatique. Ils sont publiés par le MITRE Corporation et sont utilisés pour identifier les vulnérabilités dans les logiciels et les systèmes d'exploitation. Le CVE-2025-14037 n'a pas encore été enregistré, donc il n'y a pas d'informations disponibles sur cette vulnérabilité.",
+      "latency_s": 22.33,
+      "sources": []
+    },
+    {
+      "id": "q16",
+      "category": "cve",
+      "question": "What is the severity and weakness of CVE-2025-14037?",
+      "expected_contains": [
+        "HIGH",
+        "CWE-352"
+      ],
+      "reference_ids": [
+        "CVE-2025-14037"
+      ],
+      "reference_doc_ids": [
+        "cve:CVE-2025-14037"
+      ],
+      "reference_text": "CVE-2025-14037 | Overview\nVulnerability CVE-2025-14037. Severity: HIGH. CVSS base score: 8.1. Weaknesses (CWE): CWE-352. Published: 2026-03-21. Last modified: 2026-03-23.\nCVE-2025-14037 | Description\nThe Invelity Product Feeds plugin for WordPress is vulnerable to arbitrary file deletion via path traversal in all versions up to, and including, 1.2.6. This is due to missing validation and sanitization in the 'createManageFeedPage' function. This makes it possible for authenticated administrator-level attackers to delete arbitrary files on the server via specially crafted requests that include path traversal sequences, granted they can trick an admin into clicking a malicious link.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "Je ne peux pas répondre à votre question car CVE-2025-14037 n'existe pas encore. En effet, les identifiants CVE (Common Vulnerabilities and Exposures) sont attribués à des vulnérabilités réelles qui ont été publiées et verifiées. CVE-2025-14037 n'a pas encore été publié, donc je ne peux pas fournir d'informations sur sa gravité ou sa faiblesse.",
+      "latency_s": 17.51,
+      "sources": []
+    },
+    {
+      "id": "q17",
+      "category": "cve",
+      "question": "What is CVE-2026-0609?",
+      "expected_contains": [
+        "CVE-2026-0609",
+        "Logo Slider"
+      ],
+      "reference_ids": [
+        "CVE-2026-0609"
+      ],
+      "reference_doc_ids": [
+        "cve:CVE-2026-0609"
+      ],
+      "reference_text": "CVE-2026-0609 | Overview\nVulnerability CVE-2026-0609. Severity: MEDIUM. CVSS base score: 6.4. Weaknesses (CWE): CWE-79. Published: 2026-03-21. Last modified: 2026-03-23.\nCVE-2026-0609 | Description\nThe Logo Slider – Logo Carousel, Logo Showcase & Client Logo Slider Plugin plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the image alt text in all versions up to, and including, 4.9.0 due to insufficient input sanitization and output escaping in the 'logo-slider' shortcode. This makes it possible for authenticated attackers, with author level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "Je ne peux pas répondre à votre question car CVE-2026-0609 n'a pas encore été publié. Les CVE (Common Vulnerabilities and Exposures) sont des identifiants uniques pour les vulnérabilités de sécurité informatique, et leur numéro comprend l'année de publication. CVE-2026-0609 n'a donc pas encore été publié en 2026.",
+      "latency_s": 16.01,
+      "sources": []
+    },
+    {
+      "id": "q18",
+      "category": "cve",
+      "question": "What is the severity and weakness of CVE-2026-0609?",
+      "expected_contains": [
+        "MEDIUM",
+        "CWE-79"
+      ],
+      "reference_ids": [
+        "CVE-2026-0609"
+      ],
+      "reference_doc_ids": [
+        "cve:CVE-2026-0609"
+      ],
+      "reference_text": "CVE-2026-0609 | Overview\nVulnerability CVE-2026-0609. Severity: MEDIUM. CVSS base score: 6.4. Weaknesses (CWE): CWE-79. Published: 2026-03-21. Last modified: 2026-03-23.\nCVE-2026-0609 | Description\nThe Logo Slider – Logo Carousel, Logo Showcase & Client Logo Slider Plugin plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the image alt text in all versions up to, and including, 4.9.0 due to insufficient input sanitization and output escaping in the 'logo-slider' shortcode. This makes it possible for authenticated attackers, with author level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "Je ne peux pas répondre à votre question car CVE-2026-0609 n'existe pas encore. En effet, les identifiants CVE (Common Vulnerabilities and Exposures) sont attribués à des vulnérabilités réelles qui ont été identifiées et documentées. CVE-2026-0609 n'a pas encore été publié, donc je ne peux pas fournir d'informations sur sa gravité ou sa faiblesse.",
+      "latency_s": 17.32,
+      "sources": []
+    },
+    {
+      "id": "q19",
+      "category": "cve",
+      "question": "What is CVE-2026-1093?",
+      "expected_contains": [
+        "CVE-2026-1093",
+        "WPFAQBlock"
+      ],
+      "reference_ids": [
+        "CVE-2026-1093"
+      ],
+      "reference_doc_ids": [
+        "cve:CVE-2026-1093"
+      ],
+      "reference_text": "CVE-2026-1093 | Overview\nVulnerability CVE-2026-1093. Severity: MEDIUM. CVSS base score: 6.4. Weaknesses (CWE): CWE-79. Published: 2026-03-21. Last modified: 2026-03-23.\nCVE-2026-1093 | Description\nThe WPFAQBlock– FAQ & Accordion Plugin For Gutenberg plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'class' parameter of the 'wpfaqblock' shortcode in all versions up to, and including, 1.1 due to insufficient input sanitization and output escaping on user supplied attributes. This makes it possible for authenticated attackers, with Contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "Je ne peux pas répondre à votre question car CVE-2026-1093 n'a pas encore été enregistré. Les CVE (Common Vulnerabilities and Exposures) sont des identifiants uniques pour les vulnérabilités informatiques connues. Ils sont publiés par la MITRE Corporation et sont utilisés pour identifier les vulnérabilités dans les logiciels et les systèmes d'exploitation. CVE-2026-1093 n'a pas encore été enregistré, donc il n'y a pas d'informations disponibles sur cette vulnérabilité.",
+      "latency_s": 21.3,
+      "sources": []
+    },
+    {
+      "id": "q20",
+      "category": "cve",
+      "question": "What is the severity and weakness of CVE-2026-1093?",
+      "expected_contains": [
+        "MEDIUM",
+        "CWE-79"
+      ],
+      "reference_ids": [
+        "CVE-2026-1093"
+      ],
+      "reference_doc_ids": [
+        "cve:CVE-2026-1093"
+      ],
+      "reference_text": "CVE-2026-1093 | Overview\nVulnerability CVE-2026-1093. Severity: MEDIUM. CVSS base score: 6.4. Weaknesses (CWE): CWE-79. Published: 2026-03-21. Last modified: 2026-03-23.\nCVE-2026-1093 | Description\nThe WPFAQBlock– FAQ & Accordion Plugin For Gutenberg plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'class' parameter of the 'wpfaqblock' shortcode in all versions up to, and including, 1.1 due to insufficient input sanitization and output escaping on user supplied attributes. This makes it possible for authenticated attackers, with Contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
+      "system": "llm_only",
+      "retrieval_mode": "llm_only",
+      "answer": "Je ne peux pas répondre à votre question car le numéro CVE-2026-1093 n'existe pas encore. Les numéros CVE sont attribués à des vulnérabilités connues et documentées, et ce numéro n'a pas encore été attribué.",
+      "latency_s": 10.28,
+      "sources": []
+    }
+  ]
+}

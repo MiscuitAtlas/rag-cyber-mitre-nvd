@@ -62,21 +62,45 @@ def test_llm_only_invented_facts_are_flagged():
     )
     assert metrics["coverage"] == 0.0
     assert metrics["hallucination"] is True
-    assert metrics["hallucinated_facts"] == ["id:CWE-79", "score:9.8", "severity:CRITICAL"]
+    assert metrics["invented_facts"] == ["id:CWE-79", "score:9.8", "severity:CRITICAL"]
     assert "faithfulness" not in metrics and "context_precision" not in metrics
 
 
-def test_unfaithful_but_true_fact_is_not_a_hallucination():
+def test_unfaithful_but_true_fact_is_not_invented():
     # Fait absent du contexte transmis mais présent dans la base : infidèle au contexte, pas inventé.
     metrics = score_result(_result("CWE-94", context="CVE-2024-13785 | Description\nshortcode", reference=REFERENCE))
     assert metrics["faithfulness"] == 0.0
-    assert metrics["hallucination"] is False
+    assert metrics["invented_facts"] == []
     assert metrics["context_recall"] == 0.0
+    # La sévérité manque sans que la réponse le signale : réponse incomplète affirmée.
+    assert metrics["hallucination"] is True
 
 
 def test_abstention_has_no_faithfulness_score():
     metrics = score_result(_result("Le contexte ne permet pas de répondre.", context=REFERENCE, reference=REFERENCE))
-    assert metrics["faithfulness"] is None and metrics["hallucination"] is False
+    assert metrics["faithfulness"] is None
+    assert metrics["abstention"] is True and metrics["hallucination"] is False
+
+
+def test_wrong_technique_name_is_a_hallucination_without_invented_ids():
+    """Cas réel de Mistral seul : bon identifiant, mauvais nom. Aucun fait vérifiable inventé, mais réponse fausse."""
+    result = _result(
+        "T1053.002 représente l’utilisation de PowerShell pour exécuter des commandes.",
+        system="llm_only",
+        question="What is T1053.002 in MITRE ATT&CK?",
+        reference="T1053.002 At | Overview",
+    )
+    result["expected_contains"] = ["T1053.002", "At"]
+    metrics = score_result(result)
+    assert metrics["invented_facts"] == []
+    assert metrics["hallucination"] is True and metrics["abstention"] is False
+
+
+def test_refusal_with_typographic_apostrophe_is_an_abstention():
+    metrics = score_result(
+        _result("Je ne peux pas répondre : CVE-2024-13785 n’existe pas encore.", system="llm_only", reference=REFERENCE)
+    )
+    assert metrics["abstention"] is True and metrics["hallucination"] is False
 
 
 def test_v1_results_rescored_with_whole_words():
@@ -108,3 +132,21 @@ def test_full_evaluation_run_and_report(tmp_path, pipeline):
     assert "| Couverture des éléments attendus |" in report
     assert (tmp_path / "rapport_evaluation.md").exists()
     assert json.loads((tmp_path / "summary.json").read_text(encoding="utf-8"))["hybrid"]["questions"] == 6
+
+
+def test_v2_results_match_published_figures():
+    """Chiffres cités dans le README, recalculés à partir des réponses enregistrées (Mistral, novembre 2026)."""
+    from rag_cyber.evaluation import summarize
+
+    results_dir = ROOT / "data" / "eval" / "results"
+    summaries = {
+        s: summarize(load_json(results_dir / f"{s}.json")["results"])[0] for s in ("hybrid", "faiss", "llm_only")
+    }
+    assert summaries["hybrid"]["coverage"] == 0.975 and summaries["llm_only"]["coverage"] == 0.375
+    assert (
+        summaries["hybrid"]["found_not_in_question"] == "24/25"
+        and summaries["llm_only"]["found_not_in_question"] == "0/25"
+    )
+    assert summaries["hybrid"]["faithfulness"] == 1.0 and summaries["hybrid"]["context_precision"] == 0.96
+    assert summaries["hybrid"]["hallucination_rate"] == 0.05 and summaries["faiss"]["hallucination_rate"] == 0.05
+    assert summaries["llm_only"]["hallucination_rate"] == 0.5 and summaries["llm_only"]["abstention_rate"] == 0.5

@@ -7,8 +7,12 @@ Métriques, toutes calculées sans LLM juge (déterministes, recalculables à pa
 - précision du contexte : part des extraits transmis qui proviennent du ou des documents de référence ;
 - fidélité : part des faits vérifiables de la réponse (identifiants CVE/ATT&CK/CWE/DET/M, scores CVSS, sévérités)
   présents dans les extraits transmis ou dans la question ;
-- taux d'hallucination : part des réponses contenant au moins un fait vérifiable absent à la fois de la question,
-  des extraits transmis et des documents de référence de la base.
+- taux d'hallucination : part des réponses fausses ou incomplètes données sans réserve, c'est-à-dire qui manquent un
+  élément attendu absent de la question sans dire qu'elles ne savent pas, ou qui citent un fait vérifiable inventé ;
+- abstentions : part des réponses incomplètes qui le signalent (« je ne peux pas répondre », « le contexte ne permet
+  pas ») ;
+- faits inventés : part des réponses citant un fait vérifiable absent à la fois de la question, des extraits transmis
+  et des documents de référence de la base.
 
 Ce sont des approximations par entités des métriques de RAGAS (Faithfulness, Context Precision/Recall) : elles ne
 jugent pas les paraphrases, seulement les faits que l'on peut vérifier mécaniquement.
@@ -49,6 +53,11 @@ _SEVERITY_RE = re.compile(
     r"(?:s[ée]v[ée]rit[ée]|severity|criticit[ée]|gravit[ée])\W+(?:\w+\W+){0,6}?(" + "|".join(SEVERITIES) + r")\b",
     re.IGNORECASE,
 )
+_ABSTENTION_RE = re.compile(
+    r"je ne (?:peux|sais) pas|ne (?:permet|contient|précise) pas|pas d'information|aucune information|n'existe pas"
+    r"|n'a pas encore été|absents? de la base|aucun document|cannot answer|do not know|don't know",
+    re.IGNORECASE,
+)
 _SCORE_RE = re.compile(r"(?:CVSS|score)[^0-9\n]{0,40}?\b(10(?:[.,]0)?|\d[.,]\d)\b", re.IGNORECASE)
 
 
@@ -72,6 +81,11 @@ def answer_facts(answer: str) -> list[str]:
     facts += [f"score:{m.group(1).replace(',', '.')}" for m in _SCORE_RE.finditer(answer)]
     facts += [f"severity:{SEVERITIES[m.group(1).lower()]}" for m in _SEVERITY_RE.finditer(answer)]
     return list(dict.fromkeys(facts))
+
+
+def is_abstention(answer: str) -> bool:
+    """La réponse dit qu'elle ne peut pas répondre (entièrement ou en partie)."""
+    return bool(_ABSTENTION_RE.search(answer.replace("’", "'")))
 
 
 def fact_supported(fact: str, support: str) -> bool:
@@ -104,12 +118,18 @@ def score_result(result: dict[str, Any]) -> dict[str, Any]:
 
     facts = answer_facts(answer)
     unsupported_by_sources = [f for f in facts if not fact_supported(f, f"{question}\n{context}")]
-    hallucinated = [f for f in unsupported_by_sources if not fact_supported(f, reference)]
+    invented = [f for f in unsupported_by_sources if not fact_supported(f, reference)]
+    complete = metrics["found_not_in_question"] == metrics["expected_not_in_question"]
+    abstention = not complete and is_abstention(answer)
     metrics.update(
         {
             "facts": facts,
-            "hallucinated_facts": hallucinated,
-            "hallucination": bool(hallucinated),
+            "invented_facts": invented,
+            "invented": bool(invented),
+            "complete": complete,
+            "abstention": abstention,
+            # Réponse fausse ou incomplète affirmée sans réserve, ou fait vérifiable inventé
+            "hallucination": (not complete and not abstention) or bool(invented),
         }
     )
 
@@ -136,6 +156,10 @@ def _mean(values: list[float | None]) -> float | None:
     return round(statistics.mean(values), 3) if values else None
 
 
+def _rate(scored: list[dict[str, Any]], key: str) -> float | None:
+    return round(sum(bool(r["metrics"][key]) for r in scored) / len(scored), 3) if scored else None
+
+
 def summarize(results: list[dict[str, Any]]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     scored = [r | {"metrics": score_result(r)} for r in results]
     by_category: dict[str, list[dict[str, Any]]] = {}
@@ -153,9 +177,9 @@ def summarize(results: list[dict[str, Any]]) -> tuple[dict[str, Any], list[dict[
         "context_recall": _mean([r["metrics"].get("context_recall") for r in scored]),
         "context_precision": _mean([r["metrics"].get("context_precision") for r in scored]),
         "faithfulness": _mean([r["metrics"].get("faithfulness") for r in scored]),
-        "hallucination_rate": round(sum(r["metrics"]["hallucination"] for r in scored) / len(scored), 3)
-        if scored
-        else None,
+        "hallucination_rate": _rate(scored, "hallucination"),
+        "abstention_rate": _rate(scored, "abstention"),
+        "invented_facts_rate": _rate(scored, "invented"),
         "retrieval_modes": dict(Counter(r.get("retrieval_mode") for r in scored)),
         "latency_s": _mean([r.get("latency_s") for r in scored]),
     }, scored
@@ -264,7 +288,9 @@ def build_report(results_dir: Path) -> tuple[dict[str, Any], str]:
         ("Rappel du contexte", "context_recall"),
         ("Précision du contexte", "context_precision"),
         ("Fidélité au contexte", "faithfulness"),
-        ("Taux d'hallucination (réponses)", "hallucination_rate"),
+        ("Taux d'hallucination : réponse fausse ou incomplète, sans réserve", "hallucination_rate"),
+        ("Abstentions : réponse incomplète signalée", "abstention_rate"),
+        ("Réponses citant un fait vérifiable inventé", "invented_facts_rate"),
         ("Latence moyenne (s)", "latency_s"),
     ]
     lines = [
@@ -296,7 +322,8 @@ def build_report(results_dir: Path) -> tuple[dict[str, Any], str]:
         "",
         "## Détail par question",
         "",
-        "Couverture, puis ⚠ si la réponse contient un fait vérifiable introuvable dans la question, le contexte et la base.",
+        "Couverture et mode de recherche ; ⚠ : réponse fausse ou incomplète donnée sans réserve (avec les faits inventés "
+        "éventuels) ; ∅ : abstention.",
         "",
         "| Question | " + " | ".join(_LABELS[s] for s in systems) + " |",
         "|---|" + "---|" * len(systems),
@@ -311,7 +338,11 @@ def build_report(results_dir: Path) -> tuple[dict[str, Any], str]:
                 cells.append("–")
                 continue
             m = r["metrics"]
-            flag = " ⚠ " + ", ".join(f.split(":", 1)[1] for f in m["hallucinated_facts"]) if m["hallucination"] else ""
+            flag = ""
+            if m["hallucination"]:
+                flag = " ⚠" + "".join(f" {f.split(':', 1)[1]}" for f in m["invented_facts"])
+            elif m["abstention"]:
+                flag = " ∅"
             cells.append(f"{_fmt(m['coverage'])} ({r['retrieval_mode']}){flag}")
         question = next(by_id[s][qid]["question"] for s in systems if qid in by_id[s])
         lines.append(f"| {qid} : {question} | " + " | ".join(cells) + " |")
@@ -325,8 +356,11 @@ def build_report(results_dir: Path) -> tuple[dict[str, Any], str]:
         "- **Précision du contexte** : part des extraits transmis qui proviennent du ou des documents de référence de la question.",
         "- **Fidélité** : part des faits vérifiables de la réponse (identifiants CVE, ATT&CK, CWE, DET, M ; scores CVSS ; "
         "sévérités) présents dans la question ou les extraits transmis. Moyenne sur les réponses qui citent au moins un fait.",
-        "- **Taux d'hallucination** : part des réponses citant au moins un fait vérifiable absent de la question, "
-        "des extraits transmis et des documents de référence de la base.",
+        "- **Taux d'hallucination** : part des réponses qui manquent un élément attendu absent de la question sans le "
+        "signaler, ou qui citent un fait vérifiable inventé. Une réponse qui donne un mauvais nom de technique compte ici.",
+        "- **Abstentions** : part des réponses incomplètes qui disent ne pas pouvoir répondre.",
+        "- **Faits inventés** : part des réponses citant un fait vérifiable absent de la question, des extraits transmis "
+        "et des documents de référence de la base.",
         "",
         "Ces métriques sont des approximations par entités de celles de RAGAS : elles ne jugent pas les paraphrases.",
     ]

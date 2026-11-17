@@ -1,0 +1,61 @@
+{
+  "hybrid": {
+    "questions": 20,
+    "coverage": 0.975,
+    "coverage_by_category": {
+      "cve": 1.0,
+      "mitre": 0.95
+    },
+    "found_not_in_question": "24/25",
+    "context_recall": 1.0,
+    "context_precision": 0.96,
+    "faithfulness": 1.0,
+    "hallucination_rate": 0.05,
+    "abstention_rate": 0.0,
+    "invented_facts_rate": 0.0,
+    "retrieval_modes": {
+      "exact": 19,
+      "hybrid": 1
+    },
+    "latency_s": 33.302
+  },
+  "faiss": {
+    "questions": 20,
+    "coverage": 0.975,
+    "coverage_by_category": {
+      "cve": 1.0,
+      "mitre": 0.95
+    },
+    "found_not_in_question": "24/25",
+    "context_recall": 1.0,
+    "context_precision": 0.96,
+    "faithfulness": 1.0,
+    "hallucination_rate": 0.05,
+    "abstention_rate": 0.0,
+    "invented_facts_rate": 0.0,
+    "retrieval_modes": {
+      "exact": 19,
+      "faiss": 1
+    },
+    "latency_s": 15.87
+  },
+  "llm_only": {
+    "questions": 20,
+    "coverage": 0.375,
+    "coverage_by_category": {
+      "cve": 0.25,
+      "mitre": 0.5
+    },
+    "found_not_in_question": "0/25",
+    "context_recall": null,
+    "context_precision": null,
+    "faithfulness": null,
+    "hallucination_rate": 0.5,
+    "abstention_rate": 0.5,
+    "invented_facts_rate": 0.0,
+    "retrieval_modes": {
+      "llm_only": 20
+    },
+    "latency_s": 13.514
+  }
+}
