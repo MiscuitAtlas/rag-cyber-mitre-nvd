@@ -100,7 +100,9 @@ def save_store(
     extra: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     index_file.parent.mkdir(parents=True, exist_ok=True)
-    faiss.write_index(index, str(index_file))
+    # Sérialisation en mémoire puis écriture par Python : faiss.write_index passe par fopen(), qui échoue sous
+    # Windows sur un chemin contenant des accents (« 1ere année »).
+    index_file.write_bytes(faiss.serialize_index(index).tobytes())
     with open(chunks_file, "w", encoding="utf-8") as f:
         json.dump(chunks, f, ensure_ascii=False)
     manifest = {
@@ -123,7 +125,7 @@ def load_store(index_file: Path, chunks_file: Path, manifest_file: Path) -> Vect
             "  python -m rag_cyber prepare --sample   (ou : download puis prepare)\n"
             "  python -m rag_cyber index"
         )
-    index = faiss.read_index(str(index_file))
+    index = faiss.deserialize_index(np.frombuffer(index_file.read_bytes(), dtype="uint8"))
     with open(chunks_file, encoding="utf-8") as f:
         chunks = json.load(f)
     manifest = {}

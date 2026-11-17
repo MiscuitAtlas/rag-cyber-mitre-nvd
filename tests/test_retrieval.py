@@ -75,7 +75,8 @@ def test_unknown_mode_is_rejected(retriever):
 
 
 def test_store_round_trip(tmp_path, store, embedder):
-    files = (tmp_path / "full.index", tmp_path / "full_chunks.json", tmp_path / "manifest.json")
+    folder = tmp_path / "1ere année" / "index"  # chemin accentué, comme le dossier du cours
+    files = (folder / "full.index", folder / "full_chunks.json", folder / "manifest.json")
     manifest = save_store(store.index, store.chunks, *files, embed_model=embedder.name)
     assert manifest["chunks"] == len(store.chunks) and manifest["documents"] == 100
     loaded = load_store(*files)

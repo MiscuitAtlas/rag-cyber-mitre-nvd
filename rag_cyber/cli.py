@@ -217,6 +217,10 @@ def main(argv: list[str] | None = None) -> int:
     from rag_cyber.index import IndexNotFoundError
     from rag_cyber.llm import LLMError
 
+    # Sortie redirigée sous Windows (cp1252) : un caractère non représentable ne doit pas interrompre la commande.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(errors="replace")
     args = build_parser().parse_args(argv)
     settings = get_settings(data_dir=args.data_dir, index_dir=args.index_dir)
     try:
