@@ -1,0 +1,176 @@
+{
+ "resultsPerPage": 3,
+ "format": "NVD_CVE",
+ "version": "2.0",
+ "vulnerabilities": [
+  {
+   "cve": {
+    "id": "CVE-2026-0001",
+    "published": "2026-03-21T04:16:47.620",
+    "lastModified": "2026-03-23T14:32:02.800",
+    "vulnStatus": "Analyzed",
+    "descriptions": [
+     {
+      "lang": "es",
+      "value": "Descripci\u00f3n"
+     },
+     {
+      "lang": "en",
+      "value": "  Example plugin for WordPress is vulnerable to XSS.  "
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "security@wordfence.com",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+        "baseScore": 6.1,
+        "baseSeverity": "MEDIUM"
+       }
+      },
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "baseScore": 9.8,
+        "baseSeverity": "CRITICAL"
+       }
+      }
+     ],
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "baseScore": 5.0
+       },
+       "baseSeverity": "MEDIUM"
+      }
+     ]
+    },
+    "weaknesses": [
+     {
+      "source": "nvd@nist.gov",
+      "type": "Primary",
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-79"
+       },
+       {
+        "lang": "en",
+        "value": "NVD-CWE-noinfo"
+       }
+      ]
+     },
+     {
+      "source": "security@wordfence.com",
+      "type": "Secondary",
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-79"
+       },
+       {
+        "lang": "en",
+        "value": "CWE-80"
+       }
+      ]
+     }
+    ],
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:example:example_plugin:*:*:*:*:*:wordpress:*:*"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:example:example_plugin:1.0:*:*:*:*:wordpress:*:*"
+         },
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*"
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2026-0002",
+    "published": "2026-03-21T04:16:47.620",
+    "lastModified": "2026-03-23T14:32:02.800",
+    "vulnStatus": "Analyzed",
+    "descriptions": [
+     {
+      "lang": "es",
+      "value": "Descripci\u00f3n"
+     },
+     {
+      "lang": "en",
+      "value": "  Example plugin for WordPress is vulnerable to XSS.  "
+     }
+    ],
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:N/AC:L/Au:N/C:P/I:P/A:P",
+        "baseScore": 7.5
+       },
+       "baseSeverity": "HIGH"
+      }
+     ]
+    },
+    "weaknesses": [
+     {
+      "source": "nvd@nist.gov",
+      "type": "Primary",
+      "description": [
+       {
+        "lang": "en",
+        "value": "NVD-CWE-Other"
+       }
+      ]
+     }
+    ],
+    "configurations": []
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2026-0003",
+    "published": "2026-03-21T04:16:47.620",
+    "lastModified": "2026-03-23T14:32:02.800",
+    "vulnStatus": "Rejected",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "** REJECT ** Duplicate."
+     }
+    ],
+    "metrics": {},
+    "weaknesses": [],
+    "configurations": []
+   }
+  }
+ ]
+}

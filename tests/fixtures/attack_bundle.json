@@ -1,0 +1,250 @@
+{
+ "type": "bundle",
+ "id": "bundle--test",
+ "spec_version": "2.0",
+ "objects": [
+  {
+   "type": "x-mitre-tactic",
+   "id": "x-mitre-tactic--exec",
+   "name": "Execution",
+   "x_mitre_shortname": "execution",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "TA0002",
+     "url": "https://attack.mitre.org/tactics/TA0002"
+    }
+   ]
+  },
+  {
+   "type": "x-mitre-tactic",
+   "id": "x-mitre-tactic--pers",
+   "name": "Persistence",
+   "x_mitre_shortname": "persistence",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "TA0003",
+     "url": "https://attack.mitre.org/tactics/TA0003"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--parent",
+   "name": "Scheduled Task/Job",
+   "description": "Adversaries may abuse task scheduling.(Citation: Example)\n\nSee [Scheduled Task](https://attack.mitre.org/techniques/T1053/005) and [schtasks](https://attack.mitre.org/software/S0111).",
+   "x_mitre_is_subtechnique": false,
+   "x_mitre_platforms": [
+    "Windows",
+    "Linux"
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    },
+    {
+     "kill_chain_name": "other-chain",
+     "phase_name": "ignored"
+    }
+   ],
+   "x_mitre_detection": "",
+   "x_mitre_data_sources": [],
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1053",
+     "url": "https://attack.mitre.org/techniques/T1053"
+    },
+    {
+     "source_name": "Example",
+     "description": "citation"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--sub",
+   "name": "Scheduled Task",
+   "description": "Adversaries may abuse the Windows Task Scheduler. Use <code>schtasks</code>.",
+   "x_mitre_is_subtechnique": true,
+   "x_mitre_platforms": [
+    "Windows"
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    },
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "persistence"
+    }
+   ],
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1053.005",
+     "url": "https://attack.mitre.org/techniques/T1053/005"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--revoked",
+   "name": "Old technique",
+   "revoked": true,
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T9998",
+     "url": ""
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--deprecated",
+   "name": "Deprecated technique",
+   "x_mitre_deprecated": true,
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T9999",
+     "url": ""
+    }
+   ]
+  },
+  {
+   "type": "x-mitre-data-component",
+   "id": "x-mitre-data-component--sjc",
+   "name": "Scheduled Job Creation"
+  },
+  {
+   "type": "x-mitre-data-component",
+   "id": "x-mitre-data-component--pc",
+   "name": "Process Creation"
+  },
+  {
+   "type": "x-mitre-analytic",
+   "id": "x-mitre-analytic--an1",
+   "name": "Analytic 1221",
+   "description": "Detects scheduled task creation followed by execution from svchost.exe.",
+   "x_mitre_platforms": [
+    "Windows"
+   ],
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "AN1221",
+     "url": "https://attack.mitre.org/detectionstrategies/DET0441#AN1221"
+    }
+   ],
+   "x_mitre_log_source_references": [
+    {
+     "x_mitre_data_component_ref": "x-mitre-data-component--sjc",
+     "name": "WinEventLog:Security",
+     "channel": "EventCode=4698"
+    },
+    {
+     "x_mitre_data_component_ref": "x-mitre-data-component--pc",
+     "name": "WinEventLog:Sysmon",
+     "channel": "EventCode=1"
+    }
+   ]
+  },
+  {
+   "type": "x-mitre-analytic",
+   "id": "x-mitre-analytic--revoked",
+   "name": "Analytic 9999",
+   "description": "Should be ignored",
+   "revoked": true,
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "AN9999",
+     "url": ""
+    }
+   ]
+  },
+  {
+   "type": "x-mitre-detection-strategy",
+   "id": "x-mitre-detection-strategy--det",
+   "name": "Detection of Suspicious Scheduled Task Creation",
+   "x_mitre_analytic_refs": [
+    "x-mitre-analytic--an1",
+    "x-mitre-analytic--revoked",
+    "x-mitre-analytic--missing"
+   ],
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "DET0441",
+     "url": "https://attack.mitre.org/detectionstrategies/DET0441"
+    }
+   ]
+  },
+  {
+   "type": "course-of-action",
+   "id": "course-of-action--m1028",
+   "name": "Operating System Configuration",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "M1028",
+     "url": "https://attack.mitre.org/mitigations/M1028"
+    }
+   ]
+  },
+  {
+   "type": "course-of-action",
+   "id": "course-of-action--m1018",
+   "name": "User Account Management",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "M1018",
+     "url": "https://attack.mitre.org/mitigations/M1018"
+    }
+   ]
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--1",
+   "relationship_type": "detects",
+   "source_ref": "x-mitre-detection-strategy--det",
+   "target_ref": "attack-pattern--sub"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--2",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--m1028",
+   "target_ref": "attack-pattern--sub",
+   "description": "Force tasks to run under the authenticated account.(Citation: TechNet)"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--3",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--m1018",
+   "target_ref": "attack-pattern--sub",
+   "revoked": true
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--4",
+   "relationship_type": "subtechnique-of",
+   "source_ref": "attack-pattern--sub",
+   "target_ref": "attack-pattern--parent"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--5",
+   "relationship_type": "detects",
+   "source_ref": "x-mitre-data-component--pc",
+   "target_ref": "attack-pattern--parent"
+  }
+ ]
+}

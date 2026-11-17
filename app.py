@@ -1,143 +1,141 @@
-from pathlib import Path
-import json
-import re
-import numpy as np
-import faiss
-import requests
+"""Chatbot Streamlit : streamlit run app.py"""
+
+from __future__ import annotations
+
+from typing import Any
+
 import streamlit as st
-from sentence_transformers import SentenceTransformer
 
-EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-OLLAMA_MODEL = "mistral"
-INDEX_FILE = Path("vectorstore/faiss_index/full.index")
-META_FILE = Path("vectorstore/faiss_index/full_chunks.json")
-TOP_K = 5
+from rag_cyber.config import get_settings
+from rag_cyber.index import IndexNotFoundError
+from rag_cyber.llm import LLMError
+from rag_cyber.pipeline import RagPipeline
+from rag_cyber.retrieval import Retrieval
 
-st.set_page_config(page_title="P17 RAG Cybersécurité", layout="wide")
-st.title("P17 - RAG Cybersécurité")
-st.write("Question -> embeddings -> FAISS -> Mistral")
+st.set_page_config(page_title="RAG cyber : ATT&CK, CVE, CWE", page_icon="🛡️")
 
-@st.cache_resource
-def load_embed_model():
-    return SentenceTransformer(EMBED_MODEL)
+SEARCH_MODES = {"hybrid": "Hybride : FAISS + BM25", "faiss": "Vectorielle : FAISS seul"}
+RETRIEVAL_LABELS = {
+    "exact": "correspondance exacte sur l'identifiant",
+    "hybrid": "recherche hybride FAISS + BM25",
+    "faiss": "recherche vectorielle FAISS",
+    "id_not_found": "identifiant absent de la base",
+}
+EXAMPLES = [
+    "What is T1053.005 and how can it be detected?",
+    "Quelle est la sévérité et la faiblesse de CVE-2025-14037 ?",
+    "Quelles techniques ATT&CK utilisent les tâches planifiées ?",
+]
 
-@st.cache_resource
-def load_faiss_index():
-    return faiss.read_index(str(INDEX_FILE))
 
-@st.cache_data
-def load_chunks():
-    with open(META_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+@st.cache_resource(show_spinner="Chargement de l'index et du modèle d'embeddings…")
+def load_pipeline() -> RagPipeline:
+    return RagPipeline.from_settings(get_settings())
 
-def extract_exact_id(query):
-    match = re.search(r"(CVE-\d{4}-\d+|T\d{4}(?:\.\d{3})?)", query, re.IGNORECASE)
-    if match:
-        return match.group(1).upper()
-    return None
 
-def retrieve_chunks(query, index, chunks, embed_model):
-    exact_id = extract_exact_id(query)
-    retrieved_chunks = []
-    distances = None
-    mode = "faiss"
+def serialize(retrieval: Retrieval) -> dict[str, Any]:
+    return {
+        "mode": retrieval.mode,
+        "missing_ids": retrieval.missing_ids,
+        "sources": [
+            {
+                "chunk_id": item.chunk_id,
+                "score": item.score,
+                "vector": item.vector_score,
+                "bm25": item.bm25_score,
+                "match": item.match,
+                "text": item.chunk["text"],
+            }
+            for item in retrieval.chunks
+        ],
+    }
 
-    if exact_id:
-        for chunk in chunks:
-            metadata = chunk.get("metadata", {})
-            cve_id = str(metadata.get("cve_id", "")).upper()
-            attack_id = str(metadata.get("attack_id", "")).upper()
 
-            if exact_id == cve_id or exact_id == attack_id:
-                retrieved_chunks.append(chunk)
+def render_missing(info: dict[str, Any]) -> None:
+    if info["missing_ids"] and info["sources"]:
+        st.warning("Absent(s) de la base : " + ", ".join(info["missing_ids"]))
 
-        if retrieved_chunks:
-            retrieved_chunks = retrieved_chunks[:TOP_K]
-            mode = "exact"
-            return retrieved_chunks, distances, mode
 
-    query_vector = embed_model.encode([query], show_progress_bar=False)
-    query_vector = np.array(query_vector).astype("float32")
+def render_sources(info: dict[str, Any]) -> None:
+    label = RETRIEVAL_LABELS.get(info["mode"], info["mode"])
+    if not info["sources"]:
+        st.caption(f"Recherche : {label}")
+        return
+    with st.expander(f"{len(info['sources'])} sources · {label}"):
+        for i, source in enumerate(info["sources"], start=1):
+            if source["match"] == "hybrid":
+                score = f"score {source['score']:.3f} (vecteur {source['vector']:.3f}, BM25 {source['bm25']:.3f})"
+            elif source["match"] == "vector":
+                score = f"similarité {source['score']:.3f}"
+            else:
+                score = "identifiant cité dans la question"
+            st.markdown(f"**[S{i}]** `{source['chunk_id']}` · {score}")
+            st.text(source["text"])  # texte brut : une description de CVE ne doit pas être interprétée en Markdown
 
-    distances, indices = index.search(query_vector, TOP_K)
 
-    for idx in indices[0]:
-        retrieved_chunks.append(chunks[idx])
+try:
+    pipeline = load_pipeline()
+except IndexNotFoundError:
+    st.error("L'index FAISS n'existe pas encore. Construisez-le depuis la racine du dépôt :")
+    st.code("python -m rag_cyber prepare --sample\npython -m rag_cyber index", language="bash")
+    st.stop()
 
-    return retrieved_chunks, distances, mode
+settings = pipeline.settings
+manifest = pipeline.store.manifest
 
-def build_prompt(query, retrieved_chunks):
-    context_parts = []
-    for i, chunk in enumerate(retrieved_chunks, start=1):
-        context_parts.append(f"Source {i} ({chunk['chunk_id']}):\n{chunk['text']}")
-
-    context = "\n\n".join(context_parts)
-
-    prompt = f"""
-You are a cybersecurity assistant.
-Answer ONLY using the provided context.
-If the context is insufficient, say so clearly.
-Answer in French.
-Mention IDs when present.
-Do not invent facts.
-
-Question:
-{query}
-
-Context:
-{context}
-
-Answer:
-"""
-    return prompt
-
-def query_ollama(prompt):
-    response = requests.post(
-        "http://127.0.0.1:11434/api/generate",
-        json={
-            "model": OLLAMA_MODEL,
-            "prompt": prompt,
-            "stream": False
-        },
-        timeout=180
+with st.sidebar:
+    st.header("Réglages")
+    mode = st.radio("Recherche sans identifiant", list(SEARCH_MODES), format_func=SEARCH_MODES.get)
+    top_k = st.slider("Extraits transmis au LLM", min_value=1, max_value=10, value=settings.top_k)
+    st.caption(
+        "Une question qui cite une CVE ou une technique (T1053.005) passe par la correspondance exacte, quel que soit le mode."
     )
-    response.raise_for_status()
-    result = response.json()
-    return result.get("response", "").strip()
+    if st.button("Effacer la conversation", width="stretch"):
+        st.session_state.messages = []
+    st.divider()
+    st.caption(
+        f"Base : {manifest.get('documents', '?')} documents, {len(pipeline.store.chunks)} chunks, "
+        f"index du {str(manifest.get('created_at', '?'))[:10]}  \n"
+        f"Embeddings : {pipeline.store.embed_model}  \nLLM : {settings.ollama_model} via Ollama (local)"
+    )
 
-index = load_faiss_index()
-chunks = load_chunks()
-embed_model = load_embed_model()
+st.title("Assistant RAG cybersécurité")
+st.caption("MITRE ATT&CK, CVE du NVD et CWE. Réponses générées en local à partir des extraits cités.")
 
-question = st.text_input("Pose ta question", placeholder="Ex: What is CVE-2025-14037?")
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-if st.button("Interroger le RAG"):
-    if not question.strip():
-        st.warning("Écris une question.")
-    else:
-        with st.spinner("Recherche et génération en cours..."):
-            retrieved_chunks, distances, mode = retrieve_chunks(question, index, chunks, embed_model)
-            prompt = build_prompt(question, retrieved_chunks)
-            answer = query_ollama(prompt)
 
-        st.subheader("Réponse")
-        st.write(answer)
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        if message.get("retrieval"):
+            render_missing(message["retrieval"])
+        st.markdown(message["content"])
+        if message.get("retrieval"):
+            render_sources(message["retrieval"])
 
-        st.subheader("Mode de recherche")
-        st.write(mode)
+question = st.chat_input("Posez une question sur une technique ATT&CK, une CVE ou une CWE…")
+question = question or st.session_state.pop("pending", None)
 
-        st.subheader("Sources utilisées")
-        for i, chunk in enumerate(retrieved_chunks, start=1):
-            text = chunk.get("text", "")
-            if len(text) > 300:
-                text = text[:300] + "..."
+if not st.session_state.messages and not question:
+    st.write("Exemples :")
+    for example in EXAMPLES:
+        if st.button(example):
+            st.session_state.pending = example
+            st.rerun()
 
-            with st.expander(f"Source {i} - {chunk.get('chunk_id')}"):
-                if mode == "faiss" and distances is not None:
-                    st.write(f"Distance : {distances[0][i - 1]}")
-                else:
-                    st.write("Distance : exact-match")
-
-                st.write(f"Parent doc : {chunk.get('parent_doc_id')}")
-                st.write(f"Source : {chunk.get('source')}")
-                st.write(text)
+if question:
+    st.session_state.messages.append({"role": "user", "content": question})
+    with st.chat_message("user"):
+        st.markdown(question)
+    with st.chat_message("assistant"):
+        retrieval, pieces = pipeline.stream(question, mode=mode, top_k=top_k)
+        info = serialize(retrieval)
+        render_missing(info)
+        try:
+            answer = st.write_stream(pieces)
+        except LLMError as exc:
+            st.error(str(exc))
+            answer = f"⚠️ {exc}"
+        render_sources(info)
+    st.session_state.messages.append({"role": "assistant", "content": answer, "retrieval": info})

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Weakness_Catalog xmlns="http://cwe.mitre.org/cwe-7" Name="CWE" Version="test" Date="2026-01-01">
+   <Weaknesses>
+      <Weakness ID="79" Name="Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')" Abstraction="Base" Structure="Simple" Status="Stable">
+         <Description>Test fixture.</Description>
+      </Weakness>
+      <Weakness ID="352" Name="Cross-Site Request Forgery (CSRF)" Abstraction="Compound" Structure="Composite" Status="Stable">
+         <Description>Test fixture.</Description>
+      </Weakness>
+      <Weakness ID="9999" Name="Old weakness" Abstraction="Base" Structure="Simple" Status="Deprecated">
+         <Description>Test fixture.</Description>
+      </Weakness>
+   </Weaknesses>
+   <Categories>
+      <Category ID="1000" Name="A category, not a weakness" Status="Draft"/>
+   </Categories>
+</Weakness_Catalog>

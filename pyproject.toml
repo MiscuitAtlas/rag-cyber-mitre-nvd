@@ -1,0 +1,38 @@
+[project]
+name = "rag-cyber-mitre-nvd"
+version = "2.0.0"
+description = "Assistant RAG de cybersécurité : MITRE ATT&CK, CVE du NVD et CWE, avec Mistral en local via Ollama"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Maxence Français" }, { name = "Bilal Medj" }]
+dependencies = [
+    "faiss-cpu",
+    "numpy",
+    "python-dotenv",
+    "rank-bm25",
+    "requests",
+    "sentence-transformers",
+    "streamlit",
+]
+
+[tool.setuptools]
+packages = ["rag_cyber"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]
+# E501 : la longueur des lignes de code est gérée par `ruff format` ; seules les longues chaînes dépassent.
+# RUF001-003 : typographie française dans les chaînes (guillemets « », apostrophes, tirets), voulue.
+ignore = ["E501", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+# Avertissements internes aux liaisons SWIG de faiss, sans rapport avec le projet
+filterwarnings = ["ignore:builtin type [Ss]wig.*:DeprecationWarning"]
