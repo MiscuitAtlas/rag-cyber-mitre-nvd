@@ -13,30 +13,14 @@ set "PYTHONUTF8=1"
 set "PYTHONUNBUFFERED=1"
 set "HF_HUB_DISABLE_SYMLINKS_WARNING=1"
 set "RAG_TIMEOUT=600"
+rem faiss-cpu et numpy ne publient pas encore de version pour les Python les plus recents.
+set "VERCHECK=import sys; sys.exit(0 if (3, 11) <= sys.version_info[:2] <= (3, 13) else 1)"
 
 echo.
 echo ================================================================
 echo  Evaluation du RAG : RAG hybride, RAG FAISS et Mistral seul
 echo ================================================================
 echo.
-
-rem --- Python 3.11 ou plus recent ---
-set "PY="
-for %%V in (3.13 3.12 3.11) do (
-  if not defined PY (
-    py -%%V -c "import sys" >nul 2>&1 && set "PY=py -%%V"
-  )
-)
-if not defined PY (
-  python -c "import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)" >nul 2>&1 && set "PY=python"
-)
-if not defined PY (
-  echo [ERREUR] Python 3.11, 3.12 ou 3.13 est introuvable.
-  echo Installez-le depuis https://www.python.org/downloads/ en cochant "Add python.exe to PATH",
-  echo puis relancez ce fichier.
-  goto :fin
-)
-echo Python : %PY%
 
 rem --- Ollama ---
 set "OLLAMA=ollama"
@@ -53,7 +37,6 @@ if errorlevel 1 (
   start "Ollama" /min "%OLLAMA%" serve
   timeout /t 10 /nobreak >nul
 )
-echo.
 echo --- Modele Mistral : environ 4 Go a telecharger au premier lancement ---
 "%OLLAMA%" pull mistral
 if errorlevel 1 (
@@ -61,13 +44,45 @@ if errorlevel 1 (
   goto :fin
 )
 
-rem --- Environnement Python ---
-if not exist "%VPY%" (
-  echo.
-  echo --- Creation de l'environnement Python ---
+rem --- Environnement Python 3.11 a 3.13 ---
+echo.
+echo --- Environnement Python ---
+if exist "%VPY%" (
+  "%VPY%" -c "%VERCHECK%" >nul 2>&1 && goto :deps
+  echo L'environnement existant utilise une version de Python incompatible : il est recree.
+  rmdir /s /q "%VENV%"
+)
+
+set "PY="
+for %%V in (3.13 3.12 3.11) do (
+  if not defined PY (
+    py -%%V -c "import sys" >nul 2>&1 && set "PY=py -%%V"
+  )
+)
+if not defined PY (
+  python -c "%VERCHECK%" >nul 2>&1 && set "PY=python"
+)
+if defined PY (
+  echo Python utilise : %PY%
   %PY% -m venv "%VENV%"
   if errorlevel 1 goto :erreur
+  goto :deps
 )
+
+rem Pas de Python 3.11 a 3.13 : uv installe un Python 3.12 reserve au projet, sans toucher au Python du systeme.
+python -c "import sys" >nul 2>&1
+if errorlevel 1 (
+  echo [ERREUR] Python est introuvable. Installez Python 3.12 depuis https://www.python.org/downloads/
+  echo en cochant "Add python.exe to PATH", puis relancez ce fichier.
+  goto :fin
+)
+echo Aucun Python 3.11 a 3.13 : installation d'un Python 3.12 reserve au projet, avec uv...
+python -m pip install --user --quiet --upgrade uv
+if errorlevel 1 goto :erreur
+python -m uv venv --seed --python 3.12 "%VENV%"
+if errorlevel 1 goto :erreur
+
+:deps
 echo.
 echo --- Installation des dependances : quelques minutes au premier lancement ---
 "%VPY%" -m pip install --quiet --upgrade pip
